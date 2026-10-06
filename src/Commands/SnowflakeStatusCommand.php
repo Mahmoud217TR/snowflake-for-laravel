@@ -8,7 +8,6 @@ use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
 use MahmoudTR\Snowflake\Configuration\SnowflakeConfig;
 use MahmoudTR\Snowflake\Contracts\GeneratorIdProvider;
-use MahmoudTR\Snowflake\Contracts\StateStore;
 use MahmoudTR\Snowflake\SnowflakeLayout;
 
 /**
@@ -23,7 +22,6 @@ final class SnowflakeStatusCommand extends Command
     public function handle(
         SnowflakeConfig $config,
         GeneratorIdProvider $generatorIdProvider,
-        StateStore $stateStore,
     ): int {
         $generatorId = $generatorIdProvider->id();
 
@@ -36,7 +34,7 @@ final class SnowflakeStatusCommand extends Command
 
         $this->components->twoColumnDetail('Generator ID', (string) $generatorId);
 
-        $this->components->twoColumnDetail('State store', $stateStore::class);
+        $this->components->twoColumnDetail('State store', (string) config('snowflake.state.driver', 'redis'));
 
         $this->components->twoColumnDetail('Maximum rollback', "{$config->maxRollbackMs} ms");
 

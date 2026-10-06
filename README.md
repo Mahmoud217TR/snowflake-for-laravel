@@ -253,10 +253,10 @@ When the sequence is exhausted, generation waits for the next millisecond. Clock
 | `TimestampExhausted` | The relative timestamp exceeds 41 bits. |
 | `InvalidGeneratorId` | The generator ID is outside `0–1023`. |
 | `ClockMovedBackwards` | Clock rollback exceeds the configured tolerance. |
-| `UnsafeConfiguration` | A required generator ID is missing/malformed, or the state driver is unsupported. |
+| `UnsafeConfiguration` | Epoch or rollback settings are not non-negative integers, a required generator ID is missing/malformed, or the state driver is unsupported. |
 | `InvalidSnowflake` | Parsing or assignment receives an invalid ID. |
 
-These classes live in `MahmoudTR\Snowflake\Exceptions`. The listed generation/configuration exceptions extend `SnowflakeException`; `InvalidSnowflake` separately extends `InvalidArgumentException`. Negative epoch or rollback settings also raise PHP's `InvalidArgumentException`.
+These classes live in `MahmoudTR\Snowflake\Exceptions`. The listed generation/configuration exceptions extend `SnowflakeException`; `InvalidSnowflake` separately extends `InvalidArgumentException`. Direct construction of `SnowflakeConfig` with a negative epoch or rollback tolerance raises PHP's `InvalidArgumentException`.
 
 ## Development
 

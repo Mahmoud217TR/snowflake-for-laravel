@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use MahmoudTR\Snowflake\Configuration\SnowflakeConfig;
+use MahmoudTR\Snowflake\Contracts\GeneratorIdProvider;
 use MahmoudTR\Snowflake\Exceptions\ClockMovedBackwards;
 use MahmoudTR\Snowflake\Exceptions\EpochNotReached;
 use MahmoudTR\Snowflake\Exceptions\InvalidGeneratorId;
@@ -52,8 +53,17 @@ it('supports boundary generator IDs', function (int $generatorId) {
     expect($this->parser->parse($generator->generate())->generatorId)->toBe($generatorId);
 })->with([0, 1023]);
 
-it('rejects out of range generator IDs', function (int $generatorId) {
-    $generator = new SnowflakeGenerator($this->clock, new StaticGeneratorIdProvider($generatorId), $this->store, $this->config);
+it('defensively rejects out of range IDs from custom providers', function (int $generatorId) {
+    $provider = new class($generatorId) implements GeneratorIdProvider
+    {
+        public function __construct(private readonly int $generatorId) {}
+
+        public function id(): int
+        {
+            return $this->generatorId;
+        }
+    };
+    $generator = new SnowflakeGenerator($this->clock, $provider, $this->store, $this->config);
 
     expect(fn () => $generator->generate())->toThrow(InvalidGeneratorId::class);
 })->with([-1, 1024]);

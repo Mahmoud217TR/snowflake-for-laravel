@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Validator;
 use MahmoudTR\Snowflake\Contracts\Clock;
+use MahmoudTR\Snowflake\Contracts\StateStore;
 use MahmoudTR\Snowflake\Facades\Snowflake;
 use MahmoudTR\Snowflake\Rules\Snowflake as SnowflakeRule;
 use MahmoudTR\Snowflake\Tests\Support\FakeClock;
@@ -74,9 +75,21 @@ it('validates an ID through Artisan', function (string $id, int $code, string $m
 
 it('reports configuration through Artisan without consuming a sequence', function () {
     expect(Artisan::call('snowflake:status'))->toBe(0);
-    expect(Artisan::output())->toContain('Epoch', 'Generator ID', 'LocalStateStore', '5 ms', '1,024', '4,095', 'Expires at');
+    expect(Artisan::output())->toContain('Epoch', 'Generator ID', '5 ms', '1,024', '4,095', 'Expires at')
+        ->toMatch('/State store[^\n]+local/');
     expect(snowflake()->inspect(snowflake()->generate())->sequence)->toBe(0);
 });
+
+it('reports the configured backend without resolving state or Redis', function (string $driver) {
+    config()->set('snowflake.state.driver', $driver);
+    $this->app->bind(StateStore::class, fn () => throw new LogicException('Status must not resolve generation state.'));
+    $this->app->bind('redis', fn () => throw new LogicException('Status must not resolve Redis.'));
+
+    expect(Artisan::call('snowflake:status'))->toBe(0);
+    expect(Artisan::output())->toMatch('/State store[^\n]+'.$driver.'/');
+    expect($this->app->resolved(StateStore::class))->toBeFalse()
+        ->and($this->app->resolved('redis'))->toBeFalse();
+})->with(['redis', 'local']);
 
 it('returns failure exit codes and useful output for command configuration errors', function (string $command, string $generatorId, string $message) {
     $process = new Process([PHP_BINARY, __DIR__.'/../vendor/bin/testbench', $command], env: [
@@ -91,4 +104,26 @@ it('returns failure exit codes and useful output for command configuration error
 })->with([
     ['snowflake:generate', '-1', 'Generator ID must be between 0 and 1023'],
     ['snowflake:status', 'invalid', 'A valid Snowflake generator ID must be configured.'],
+    ['snowflake:status', '-1', 'Generator ID must be between 0 and 1023'],
+    ['snowflake:status', '1024', 'Generator ID must be between 0 and 1023'],
+]);
+
+it('rejects malformed environment configuration rather than casting it', function (string $variable, string $value, string $key) {
+    $process = new Process([PHP_BINARY, __DIR__.'/../vendor/bin/testbench', 'snowflake:status'], env: [
+        'SNOWFLAKE_GENERATOR_ID' => '0',
+        'SNOWFLAKE_STATE_DRIVER' => 'local',
+        $variable => $value,
+        'NO_COLOR' => '1',
+    ]);
+    $process->setTimeout(60);
+
+    expect($process->run())->toBe(1)
+        ->and($process->getOutput().$process->getErrorOutput())->toContain($key);
+})->with([
+    ['SNOWFLAKE_EPOCH', 'abc', 'snowflake.epoch'],
+    ['SNOWFLAKE_EPOCH', '1.5', 'snowflake.epoch'],
+    ['SNOWFLAKE_EPOCH', '1e3', 'snowflake.epoch'],
+    ['SNOWFLAKE_MAX_ROLLBACK_MS', 'abc', 'snowflake.max_rollback_ms'],
+    ['SNOWFLAKE_MAX_ROLLBACK_MS', '1.5', 'snowflake.max_rollback_ms'],
+    ['SNOWFLAKE_MAX_ROLLBACK_MS', '1e3', 'snowflake.max_rollback_ms'],
 ]);

@@ -76,8 +76,8 @@ final class SnowflakeServiceProvider extends PackageServiceProvider
         $this->app->singleton(
             SnowflakeConfig::class,
             fn (): SnowflakeConfig => new SnowflakeConfig(
-                epoch: (int) config('snowflake.epoch'),
-                maxRollbackMs: (int) config('snowflake.max_rollback_ms', 5),
+                epoch: $this->nonNegativeInteger('snowflake.epoch'),
+                maxRollbackMs: $this->nonNegativeInteger('snowflake.max_rollback_ms', 5),
             ),
         );
     }
@@ -87,13 +87,28 @@ final class SnowflakeServiceProvider extends PackageServiceProvider
         $this->app->singleton(Clock::class, SystemClock::class);
     }
 
+    private function nonNegativeInteger(string $key, ?int $default = null): int
+    {
+        $value = config($key, $default);
+
+        if (is_string($value) && preg_match('/\A[0-9]+\z/', $value) === 1) {
+            $value = filter_var(ltrim($value, '0') ?: '0', FILTER_VALIDATE_INT);
+        }
+
+        if (! is_int($value) || $value < 0) {
+            throw new UnsafeConfiguration("Configuration [{$key}] must be a non-negative integer within PHP's integer range.");
+        }
+
+        return $value;
+    }
+
     private function registerGeneratorIdProvider(): void
     {
         $this->app->singleton(GeneratorIdProvider::class, function (): GeneratorIdProvider {
             $generatorId = config('snowflake.generator_id');
 
             if (
-                $generatorId === null
+                (! is_int($generatorId) && ! is_string($generatorId))
                 || filter_var(
                     $generatorId,
                     FILTER_VALIDATE_INT,

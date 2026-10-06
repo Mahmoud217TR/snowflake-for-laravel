@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'epoch' => (int) env('SNOWFLAKE_EPOCH', 1767225600000),
+    'epoch' => env('SNOWFLAKE_EPOCH', 1767225600000),
 
     /*
     |--------------------------------------------------------------------------
@@ -43,7 +43,7 @@ return [
     |
     */
 
-    'max_rollback_ms' => (int) env('SNOWFLAKE_MAX_ROLLBACK_MS', 5),
+    'max_rollback_ms' => env('SNOWFLAKE_MAX_ROLLBACK_MS', 5),
 
     /*
     |--------------------------------------------------------------------------
