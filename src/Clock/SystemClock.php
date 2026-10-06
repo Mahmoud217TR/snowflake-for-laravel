@@ -6,6 +6,9 @@ namespace MahmoudTR\Snowflake\Clock;
 
 use MahmoudTR\Snowflake\Contracts\Clock;
 
+/**
+ * Read Unix milliseconds from the system clock and recheck it while waiting.
+ */
 final class SystemClock implements Clock
 {
     public function now(): int

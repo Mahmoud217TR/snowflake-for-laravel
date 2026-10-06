@@ -8,6 +8,9 @@ use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use MahmoudTR\Snowflake\Validation\SnowflakeValidator;
 
+/**
+ * Laravel validation rule backed by SnowflakeValidator, with normal optional-field semantics.
+ */
 final class Snowflake implements ValidationRule
 {
     public function validate(

@@ -26,6 +26,9 @@ use MahmoudTR\Snowflake\Validation\SnowflakeValidator;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
+/**
+ * Register shared generation state, configuration, schema macros, validation, and commands.
+ */
 final class SnowflakeServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void

@@ -14,6 +14,12 @@ use MahmoudTR\Snowflake\Exceptions\InvalidGeneratorId;
 use MahmoudTR\Snowflake\Exceptions\TimestampExhausted;
 use RuntimeException;
 
+/**
+ * Allocate 41/10/12-bit Snowflakes using a clock and per-generator state.
+ *
+ * Requires a 64-bit PHP runtime. Sequence exhaustion waits for the next
+ * millisecond; tolerated clock rollback waits until the previous timestamp.
+ */
 final class SnowflakeGenerator
 {
     public function __construct(
@@ -29,6 +35,14 @@ final class SnowflakeGenerator
         }
     }
 
+    /**
+     * Allocate the next ID, preserving its precision as a decimal string.
+     *
+     * @throws InvalidGeneratorId When the generator ID is outside the fixed layout.
+     * @throws EpochNotReached When the clock is before the configured epoch.
+     * @throws TimestampExhausted When the relative timestamp exceeds 41 bits.
+     * @throws ClockMovedBackwards When rollback exceeds the configured tolerance.
+     */
     public function generate(): string
     {
         $generatorId = $this->generatorIdProvider->id();

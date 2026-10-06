@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Facade;
 use MahmoudTR\Snowflake\ValueObjects\SnowflakeParts;
 
 /**
+ * Resolve the application-facing Snowflake service through Laravel's facade API.
+ *
  * @method static string generate()
  * @method static bool isValid(mixed $snowflake)
  * @method static SnowflakeParts inspect(string|int $snowflake)

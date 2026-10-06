@@ -7,6 +7,9 @@ namespace MahmoudTR\Snowflake\Commands;
 use Illuminate\Console\Command;
 use MahmoudTR\Snowflake\Validation\SnowflakeValidator;
 
+/**
+ * Report numeric ID validity with success/failure exit codes for scripting.
+ */
 final class SnowflakeValidateCommand extends Command
 {
     protected $signature = 'snowflake:validate {id : The Snowflake ID to validate}';

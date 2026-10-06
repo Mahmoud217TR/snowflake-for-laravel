@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace MahmoudTR\Snowflake;
 
+/**
+ * Fixed 41-bit timestamp, 10-bit generator, and 12-bit sequence layout.
+ *
+ * Timestamp values are milliseconds since the configured epoch. The unused
+ * sign bit keeps every ID within PHP's signed 64-bit integer range.
+ */
 final class SnowflakeLayout
 {
     public const TIMESTAMP_BITS = 41;

@@ -6,6 +6,9 @@ namespace MahmoudTR\Snowflake\Identity;
 
 use MahmoudTR\Snowflake\Contracts\GeneratorIdProvider;
 
+/**
+ * Return a configured generator ID without allocating or discovering an identity.
+ */
 final class StaticGeneratorIdProvider implements GeneratorIdProvider
 {
     public function __construct(

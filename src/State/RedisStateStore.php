@@ -9,6 +9,12 @@ use MahmoudTR\Snowflake\Redis\LuaScript;
 use MahmoudTR\Snowflake\ValueObjects\GenerationState;
 use RuntimeException;
 
+/**
+ * Atomically coordinate per-generator allocations through a Redis Lua script.
+ *
+ * Sharing producers must use the same Redis database and effective key prefix.
+ * State keys have no expiry; deleting or evicting them can permit duplicate IDs.
+ */
 final class RedisStateStore implements StateStore
 {
     public function __construct(
@@ -16,6 +22,9 @@ final class RedisStateStore implements StateStore
         private readonly string $prefix = 'snowflake:state',
     ) {}
 
+    /**
+     * @throws RuntimeException When the Lua script returns an unexpected response shape.
+     */
     public function next(int $generatorId, int $timestamp): GenerationState
     {
         $result = $this->nextStateScript->execute(

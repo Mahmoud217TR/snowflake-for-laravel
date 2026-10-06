@@ -11,6 +11,9 @@ use MahmoudTR\Snowflake\Contracts\GeneratorIdProvider;
 use MahmoudTR\Snowflake\Contracts\StateStore;
 use MahmoudTR\Snowflake\SnowflakeLayout;
 
+/**
+ * Display configuration and layout expiry without allocating an ID or probing Redis.
+ */
 final class SnowflakeStatusCommand extends Command
 {
     protected $signature = 'snowflake:status';

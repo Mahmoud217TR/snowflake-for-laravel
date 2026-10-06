@@ -7,6 +7,11 @@ namespace MahmoudTR\Snowflake\State;
 use MahmoudTR\Snowflake\Contracts\StateStore;
 use MahmoudTR\Snowflake\ValueObjects\GenerationState;
 
+/**
+ * Keep allocation history in this instance only, isolated by generator ID.
+ *
+ * State is neither persistent nor shared across requests, processes, or restarts.
+ */
 final class LocalStateStore implements StateStore
 {
     /** @var array<int, GenerationState> */

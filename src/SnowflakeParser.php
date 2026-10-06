@@ -9,12 +9,20 @@ use MahmoudTR\Snowflake\Configuration\SnowflakeConfig;
 use MahmoudTR\Snowflake\Exceptions\InvalidSnowflake;
 use MahmoudTR\Snowflake\ValueObjects\SnowflakeParts;
 
+/**
+ * Decode non-negative signed 64-bit IDs into absolute UTC timestamps and bit fields.
+ */
 final class SnowflakeParser
 {
     public function __construct(
         private readonly SnowflakeConfig $config,
     ) {}
 
+    /**
+     * Accept decimal strings (including leading zeroes) or non-negative integers.
+     *
+     * @throws InvalidSnowflake When the input is invalid or PHP is not 64-bit.
+     */
     public function parse(string|int $snowflake): SnowflakeParts
     {
         $id = $this->normalize($snowflake);

@@ -6,6 +6,9 @@ namespace MahmoudTR\Snowflake\Redis;
 
 use Illuminate\Redis\Connections\Connection;
 
+/**
+ * Execute Lua source through Laravel's normalized PhpRedis/Predis EVAL API.
+ */
 final class LuaScript
 {
     public function __construct(
@@ -13,6 +16,9 @@ final class LuaScript
         private readonly string $script,
     ) {}
 
+    /**
+     * Pass positional key names as KEYS and arguments as ARGV; Redis errors propagate.
+     */
     public function execute(
         array $keys = [],
         array $arguments = [],

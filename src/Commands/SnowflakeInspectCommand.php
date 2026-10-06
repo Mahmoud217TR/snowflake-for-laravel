@@ -8,6 +8,9 @@ use Illuminate\Console\Command;
 use MahmoudTR\Snowflake\Exceptions\InvalidSnowflake;
 use MahmoudTR\Snowflake\SnowflakeParser;
 
+/**
+ * Print decoded fields and return a failure exit code for invalid IDs.
+ */
 final class SnowflakeInspectCommand extends Command
 {
     protected $signature = 'snowflake:inspect {id : The Snowflake ID to inspect}';

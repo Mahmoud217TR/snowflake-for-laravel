@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace MahmoudTR\Snowflake\Exceptions;
 
+/**
+ * The configured generator ID cannot fit in the fixed generator bit field.
+ */
 final class InvalidGeneratorId extends SnowflakeException
 {
     public function __construct(
