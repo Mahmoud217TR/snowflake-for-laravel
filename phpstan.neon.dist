@@ -1,10 +1,9 @@
-includes:
-    - phpstan-baseline.neon
-
 parameters:
     level: 5
+    configDirectories:
+        - config
     paths:
         - src
         - config
-        - database
+        - tests/Support/SnowflakeUser.php
     tmpDir: build/phpstan

@@ -14,7 +14,7 @@ final class BlueprintMacros
     {
         Blueprint::macro(
             'snowflake',
-            fn (string $column = 'id'): ColumnDefinition => $this->unsignedBigInteger($column),
+            fn (string $column = 'id'): ColumnDefinition => $this->unsignedBigInteger($column)->primary(),
         );
 
         Blueprint::macro(

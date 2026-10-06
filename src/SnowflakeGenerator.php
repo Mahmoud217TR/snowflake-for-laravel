@@ -16,21 +16,6 @@ use RuntimeException;
 
 final class SnowflakeGenerator
 {
-    private const TIMESTAMP_BITS = 41;
-
-    private const GENERATOR_BITS = 10;
-
-    private const SEQUENCE_BITS = 12;
-
-    private const MAX_GENERATOR_ID = (1 << self::GENERATOR_BITS) - 1;
-
-    private const MAX_SEQUENCE = (1 << self::SEQUENCE_BITS) - 1;
-
-    private const MAX_TIMESTAMP = (1 << self::TIMESTAMP_BITS) - 1;
-
-    private const TIMESTAMP_SHIFT =
-        self::GENERATOR_BITS + self::SEQUENCE_BITS;
-
     public function __construct(
         private readonly Clock $clock,
         private readonly GeneratorIdProvider $generatorIdProvider,
@@ -52,6 +37,7 @@ final class SnowflakeGenerator
 
         while (true) {
             $now = $this->clock->now();
+            $timestamp = $this->validateTimestamp($now);
 
             $state = $this->stateStore->next(
                 generatorId: $generatorId,
@@ -81,13 +67,11 @@ final class SnowflakeGenerator
              * All 4096 sequence values for this millisecond have already
              * been consumed. Wait for the next millisecond and retry.
              */
-            if ($state->sequence > self::MAX_SEQUENCE) {
+            if ($state->sequence > SnowflakeLayout::MAX_SEQUENCE) {
                 $this->clock->sleepUntil($state->timestamp + 1);
 
                 continue;
             }
-
-            $timestamp = $this->validateTimestamp($state->timestamp);
 
             return $this->composeId(
                 timestamp: $timestamp,
@@ -101,11 +85,11 @@ final class SnowflakeGenerator
     {
         if (
             $generatorId < 0
-            || $generatorId > self::MAX_GENERATOR_ID
+            || $generatorId > SnowflakeLayout::MAX_GENERATOR_ID
         ) {
             throw new InvalidGeneratorId(
                 generatorId: $generatorId,
-                maximum: self::MAX_GENERATOR_ID,
+                maximum: SnowflakeLayout::MAX_GENERATOR_ID,
             );
         }
     }
@@ -121,10 +105,10 @@ final class SnowflakeGenerator
 
         $relativeTimestamp = $timestamp - $this->config->epoch;
 
-        if ($relativeTimestamp > self::MAX_TIMESTAMP) {
+        if ($relativeTimestamp > SnowflakeLayout::MAX_TIMESTAMP) {
             throw new TimestampExhausted(
                 timestamp: $relativeTimestamp,
-                maximum: self::MAX_TIMESTAMP,
+                maximum: SnowflakeLayout::MAX_TIMESTAMP,
             );
         }
 
@@ -137,8 +121,8 @@ final class SnowflakeGenerator
         int $sequence,
     ): string {
         return (string) (
-            ($timestamp << self::TIMESTAMP_SHIFT)
-            | ($generatorId << self::SEQUENCE_BITS)
+            ($timestamp << SnowflakeLayout::TIMESTAMP_SHIFT)
+            | ($generatorId << SnowflakeLayout::SEQUENCE_BITS)
             | $sequence
         );
     }

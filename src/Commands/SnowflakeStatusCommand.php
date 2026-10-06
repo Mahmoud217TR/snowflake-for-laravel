@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 use MahmoudTR\Snowflake\Configuration\SnowflakeConfig;
 use MahmoudTR\Snowflake\Contracts\GeneratorIdProvider;
 use MahmoudTR\Snowflake\Contracts\StateStore;
+use MahmoudTR\Snowflake\SnowflakeLayout;
 
 final class SnowflakeStatusCommand extends Command
 {
@@ -23,9 +24,7 @@ final class SnowflakeStatusCommand extends Command
     ): int {
         $generatorId = $generatorIdProvider->id();
 
-        $maximumTimestamp = (1 << 41) - 1;
-
-        $expiresAt = CarbonImmutable::createFromTimestampMsUTC($config->epoch + $maximumTimestamp);
+        $expiresAt = CarbonImmutable::createFromTimestampMsUTC($config->epoch + SnowflakeLayout::MAX_TIMESTAMP);
 
         $this->components->twoColumnDetail(
             'Epoch',
@@ -38,9 +37,9 @@ final class SnowflakeStatusCommand extends Command
 
         $this->components->twoColumnDetail('Maximum rollback', "{$config->maxRollbackMs} ms");
 
-        $this->components->twoColumnDetail('Maximum generators', '1,024');
+        $this->components->twoColumnDetail('Maximum generators', number_format(SnowflakeLayout::MAX_GENERATOR_ID + 1));
 
-        $this->components->twoColumnDetail('Maximum sequence', '4,095');
+        $this->components->twoColumnDetail('Maximum sequence', number_format(SnowflakeLayout::MAX_SEQUENCE));
 
         $this->components->twoColumnDetail('Expires at', $expiresAt->toIso8601String());
 

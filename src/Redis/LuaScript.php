@@ -17,8 +17,9 @@ final class LuaScript
         array $keys = [],
         array $arguments = [],
     ): mixed {
-        return $this->redis->evalsha(
+        return $this->redis->eval(
             $this->script,
+            // @phpstan-ignore argument.type (Laravel normalizes EVAL arguments; the native Redis mixin signature is incorrect here.)
             count($keys),
             ...$keys,
             ...$arguments,

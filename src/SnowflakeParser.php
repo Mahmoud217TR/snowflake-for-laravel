@@ -11,18 +11,6 @@ use MahmoudTR\Snowflake\ValueObjects\SnowflakeParts;
 
 final class SnowflakeParser
 {
-    private const GENERATOR_BITS = 10;
-
-    private const SEQUENCE_BITS = 12;
-
-    private const MAX_SNOWFLAKE = '9223372036854775807';
-
-    private const GENERATOR_MASK = (1 << self::GENERATOR_BITS) - 1;
-
-    private const SEQUENCE_MASK = (1 << self::SEQUENCE_BITS) - 1;
-
-    private const TIMESTAMP_SHIFT = self::GENERATOR_BITS + self::SEQUENCE_BITS;
-
     public function __construct(
         private readonly SnowflakeConfig $config,
     ) {}
@@ -31,11 +19,11 @@ final class SnowflakeParser
     {
         $id = $this->normalize($snowflake);
 
-        $sequence = $id & self::SEQUENCE_MASK;
+        $sequence = $id & SnowflakeLayout::MAX_SEQUENCE;
 
-        $generatorId = ($id >> self::SEQUENCE_BITS) & self::GENERATOR_MASK;
+        $generatorId = ($id >> SnowflakeLayout::SEQUENCE_BITS) & SnowflakeLayout::MAX_GENERATOR_ID;
 
-        $timestamp = ($id >> self::TIMESTAMP_SHIFT) + $this->config->epoch;
+        $timestamp = ($id >> SnowflakeLayout::TIMESTAMP_SHIFT) + $this->config->epoch;
 
         return new SnowflakeParts(
             timestamp: CarbonImmutable::createFromTimestampMsUTC($timestamp),
@@ -85,13 +73,13 @@ final class SnowflakeParser
 
     private function exceedsMaximum(string $snowflake): bool
     {
-        $maximumLength = strlen(self::MAX_SNOWFLAKE);
+        $maximumLength = strlen(SnowflakeLayout::MAX_SNOWFLAKE);
         $length = strlen($snowflake);
 
         return $length > $maximumLength
             || (
                 $length === $maximumLength
-                && strcmp($snowflake, self::MAX_SNOWFLAKE) > 0
+                && strcmp($snowflake, SnowflakeLayout::MAX_SNOWFLAKE) > 0
             );
     }
 }

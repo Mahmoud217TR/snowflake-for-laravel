@@ -38,6 +38,16 @@ trait HasSnowflakeIds
         return app(SnowflakeGenerator::class)->generate();
     }
 
+    public function setUniqueIds(): void
+    {
+        foreach ($this->uniqueIds() as $column) {
+            // Zero is a valid Snowflake, not an empty identifier.
+            if ($this->{$column} === null || $this->{$column} === '') {
+                $this->{$column} = $this->newUniqueId();
+            }
+        }
+    }
+
     protected function isValidUniqueId(mixed $value): bool
     {
         return app(SnowflakeValidator::class)->isValid($value);
