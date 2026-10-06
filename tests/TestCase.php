@@ -1,37 +1,30 @@
 <?php
 
-namespace VendorName\Skeleton\Tests;
+declare(strict_types=1);
 
-use Illuminate\Database\Eloquent\Factories\Factory;
+namespace MahmoudTR\Snowflake\Tests;
+
+use MahmoudTR\Snowflake\SnowflakeServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
-use VendorName\Skeleton\SkeletonServiceProvider;
 
 class TestCase extends Orchestra
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'VendorName\\Skeleton\\Database\\Factories\\'.class_basename($modelName).'Factory'
-        );
-    }
-
     protected function getPackageProviders($app)
     {
         return [
-            SkeletonServiceProvider::class,
+            SnowflakeServiceProvider::class,
         ];
     }
 
     public function getEnvironmentSetUp($app)
     {
-        config()->set('database.default', 'testing');
-
-        /*
-         foreach (\Illuminate\Support\Facades\File::allFiles(__DIR__ . '/../database/migrations') as $migration) {
-            (include $migration->getRealPath())->up();
-         }
-         */
+        $app['config']->set('database.default', 'testing');
+        $app['config']->set('database.connections.testing', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'foreign_key_constraints' => true,
+        ]);
+        $app['config']->set('snowflake.generator_id', 0);
+        $app['config']->set('snowflake.state.driver', 'local');
     }
 }

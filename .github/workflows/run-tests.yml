@@ -8,6 +8,9 @@ on:
       - 'phpunit.xml.dist'
       - 'composer.json'
       - 'composer.lock'
+      - 'resources/lua/**'
+      - 'phpstan.neon.dist'
+      - 'pint.json'
   pull_request:
     paths:
       - '**.php'
@@ -15,6 +18,9 @@ on:
       - 'phpunit.xml.dist'
       - 'composer.json'
       - 'composer.lock'
+      - 'resources/lua/**'
+      - 'phpstan.neon.dist'
+      - 'pint.json'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,13 +28,12 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        php: [8.5, 8.4, 8.3]
+        php: ['8.4', '8.5']
         laravel: [13.*, 12.*]
         stability: [prefer-lowest, prefer-stable]
         include:
@@ -37,7 +42,23 @@ jobs:
           - laravel: 12.*
             testbench: 10.*
 
-    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }}
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      RUN_REDIS_TESTS: '1'
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: '6379'
 
     steps:
       - name: Checkout code
@@ -47,7 +68,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, fileinfo, redis
           coverage: none
 
       - name: Setup problem matchers
@@ -64,4 +85,44 @@ jobs:
         run: composer show -D
 
       - name: Execute tests
-        run: vendor/bin/pest --ci
+        run: composer test -- --ci
+
+      - name: Test Predis against real Redis
+        run: composer test -- --ci tests/RedisStateStoreTest.php
+        env:
+          REDIS_CLIENT: predis
+
+      - name: Static analysis
+        run: composer analyse
+
+      - name: Check formatting
+        run: composer format -- --test
+
+  portable-core:
+    runs-on: windows-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.4', '8.5']
+        laravel: [13.*, 12.*]
+        include:
+          - laravel: 13.*
+            testbench: 11.*
+          - laravel: 12.*
+            testbench: 10.*
+
+    name: Core P${{ matrix.php }} - L${{ matrix.laravel }} - Windows
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, pdo_sqlite, fileinfo
+          coverage: none
+      - name: Install dependencies
+        run: |
+          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer update --prefer-dist --no-interaction
+      - name: Execute portable tests
+        run: composer test -- --ci

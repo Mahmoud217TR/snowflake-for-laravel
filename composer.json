@@ -1,17 +1,24 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "mahmoudtr/snowflake-for-laravel",
+    "description": "Distributed, time-sortable 64-bit Snowflake IDs for Laravel with Redis coordination and Eloquent integration.",
     "keywords": [
-        ":vendor_name",
         "laravel",
-        ":package_slug"
+        "snowflake",
+        "snowflake-id",
+        "distributed-id",
+        "id-generator",
+        "sortable-id",
+        "redis",
+        "eloquent",
+        "MahmoudTR",
+        "snowflake-for-laravel"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/mahmoudtr/snowflake-for-laravel",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Mahmoud Mahmoud",
+            "email": "contact@mahmoudtr.com",
             "role": "Developer"
         }
     ],
@@ -21,9 +28,10 @@
         "illuminate/contracts": "^11.0||^12.0||^13.0"
     },
     "require-dev": {
-        "laravel/pint": "^1.14",
+        "larastan/larastan": "^3.12.2",
+        "laravel/boost": "^2.10",
+        "laravel/pint": "^1.32.1",
         "nunomaduro/collision": "^8.8",
-        "larastan/larastan": "^3.0",
         "orchestra/testbench": "^11.0.0||^10.0.0||^9.0.0",
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-arch": "^4.0",
@@ -31,17 +39,20 @@
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan-deprecation-rules": "^2.0",
         "phpstan/phpstan-phpunit": "^2.0",
-        "spatie/laravel-ray": "^1.35"
+        "predis/predis": "^3.0"
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src/",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories/"
-        }
+            "MahmoudTR\\Snowflake\\": "src/",
+            "MahmoudTR\\Snowflake\\Database\\Factories\\": "database/factories/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests/",
+            "MahmoudTR\\Snowflake\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -63,10 +74,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "MahmoudTR\\Snowflake\\SnowflakeServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "Snowflake": "MahmoudTR\\Snowflake\\Facades\\Snowflake"
             }
         }
     },

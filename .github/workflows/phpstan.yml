@@ -6,6 +6,13 @@ on:
       - '**.php'
       - 'phpstan.neon.dist'
       - '.github/workflows/phpstan.yml'
+      - 'composer.json'
+  pull_request:
+    paths:
+      - '**.php'
+      - 'phpstan.neon.dist'
+      - '.github/workflows/phpstan.yml'
+      - 'composer.json'
 
 jobs:
   phpstan:
@@ -22,7 +29,7 @@ jobs:
           coverage: none
 
       - name: Install composer dependencies
-        uses: ramsey/composer-install@v4
+        uses: ramsey/composer-install@4.0.0
 
       - name: Run PHPStan
-        run: ./vendor/bin/phpstan --error-format=github
+        run: composer analyse -- --error-format=github
