@@ -32,7 +32,7 @@ final class SnowflakeStatusCommand extends Command
             CarbonImmutable::createFromTimestampMsUTC($config->epoch)->toIso8601String(),
         );
 
-        $this->components->twoColumnDetail('Generator ID',(string) $generatorId);
+        $this->components->twoColumnDetail('Generator ID', (string) $generatorId);
 
         $this->components->twoColumnDetail('State store', $stateStore::class);
 

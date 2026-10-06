@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MahmoudTR\Snowflake;
 
 use Illuminate\Foundation\Application;
@@ -8,8 +10,6 @@ use Illuminate\Support\Facades\Validator;
 use MahmoudTR\Snowflake\Clock\SystemClock;
 use MahmoudTR\Snowflake\Commands\SnowflakeGenerateCommand;
 use MahmoudTR\Snowflake\Commands\SnowflakeInspectCommand;
-use Spatie\LaravelPackageTools\Package;
-use Spatie\LaravelPackageTools\PackageServiceProvider;
 use MahmoudTR\Snowflake\Commands\SnowflakeStatusCommand;
 use MahmoudTR\Snowflake\Commands\SnowflakeValidateCommand;
 use MahmoudTR\Snowflake\Configuration\SnowflakeConfig;
@@ -23,6 +23,8 @@ use MahmoudTR\Snowflake\Redis\LuaScript;
 use MahmoudTR\Snowflake\State\LocalStateStore;
 use MahmoudTR\Snowflake\State\RedisStateStore;
 use MahmoudTR\Snowflake\Validation\SnowflakeValidator;
+use Spatie\LaravelPackageTools\Package;
+use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 final class SnowflakeServiceProvider extends PackageServiceProvider
 {
@@ -61,7 +63,7 @@ final class SnowflakeServiceProvider extends PackageServiceProvider
 
         Validator::extend(
             'snowflake',
-            fn (string $attribute,  mixed $value): bool => app(SnowflakeValidator::class)->isValid($value),
+            fn (string $attribute, mixed $value): bool => app(SnowflakeValidator::class)->isValid($value),
             'The :attribute must be a valid Snowflake ID.',
         );
     }
@@ -85,46 +87,46 @@ final class SnowflakeServiceProvider extends PackageServiceProvider
     private function registerGeneratorIdProvider(): void
     {
         $this->app->singleton(GeneratorIdProvider::class, function (): GeneratorIdProvider {
-                $generatorId = config('snowflake.generator_id');
+            $generatorId = config('snowflake.generator_id');
 
-                if (
-                    $generatorId === null
-                    || filter_var(
-                        $generatorId,
-                        FILTER_VALIDATE_INT,
-                    ) === false
-                ) {
-                    throw new UnsafeConfiguration('A valid Snowflake generator ID must be configured.');
-                }
+            if (
+                $generatorId === null
+                || filter_var(
+                    $generatorId,
+                    FILTER_VALIDATE_INT,
+                ) === false
+            ) {
+                throw new UnsafeConfiguration('A valid Snowflake generator ID must be configured.');
+            }
 
-                return new StaticGeneratorIdProvider(generatorId: (int) $generatorId);
-            },
+            return new StaticGeneratorIdProvider(generatorId: (int) $generatorId);
+        },
         );
     }
 
     private function registerStateStore(): void
     {
         $this->app->singleton(StateStore::class, function (Application $app): StateStore {
-                $driver = config('snowflake.state.driver', 'redis');
+            $driver = config('snowflake.state.driver', 'redis');
 
-                return match ($driver) {
-                    'local' => new LocalStateStore(),
+            return match ($driver) {
+                'local' => new LocalStateStore,
 
-                    'redis' => new RedisStateStore(
-                        new LuaScript(
-                            redis: $app
-                                ->make(RedisManager::class)
-                                ->connection(config('snowflake.state.connection', 'default')),
-                            script: file_get_contents(__DIR__.'/../resources/lua/next-state.lua'),
-                        ),
-                        (string) config('snowflake.state.prefix', 'snowflake:state'),
+                'redis' => new RedisStateStore(
+                    new LuaScript(
+                        redis: $app
+                            ->make(RedisManager::class)
+                            ->connection(config('snowflake.state.connection', 'default')),
+                        script: file_get_contents(__DIR__.'/../resources/lua/next-state.lua'),
                     ),
+                    (string) config('snowflake.state.prefix', 'snowflake:state'),
+                ),
 
-                    default => throw new UnsafeConfiguration(
-                        "Unsupported Snowflake state driver [{$driver}].",
-                    ),
-                };
-            },
+                default => throw new UnsafeConfiguration(
+                    "Unsupported Snowflake state driver [{$driver}].",
+                ),
+            };
+        },
         );
     }
 }

@@ -28,7 +28,6 @@ trait HasSnowflakeIds
      */
     abstract public function getKeyName();
 
-
     public function initializeHasSnowflakeIds(): void
     {
         $this->mergeCasts([$this->getKeyName() => AsSnowflake::class]);

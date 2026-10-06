@@ -12,6 +12,7 @@ use MahmoudTR\Snowflake\ValueObjects\SnowflakeParts;
 final class SnowflakeParser
 {
     private const GENERATOR_BITS = 10;
+
     private const SEQUENCE_BITS = 12;
 
     private const MAX_SNOWFLAKE = '9223372036854775807';

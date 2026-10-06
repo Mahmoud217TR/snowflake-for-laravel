@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MahmoudTR\Snowflake;
 
 use MahmoudTR\Snowflake\Configuration\SnowflakeConfig;
@@ -15,11 +17,15 @@ use RuntimeException;
 final class SnowflakeGenerator
 {
     private const TIMESTAMP_BITS = 41;
+
     private const GENERATOR_BITS = 10;
+
     private const SEQUENCE_BITS = 12;
 
     private const MAX_GENERATOR_ID = (1 << self::GENERATOR_BITS) - 1;
+
     private const MAX_SEQUENCE = (1 << self::SEQUENCE_BITS) - 1;
+
     private const MAX_TIMESTAMP = (1 << self::TIMESTAMP_BITS) - 1;
 
     private const TIMESTAMP_SHIFT =

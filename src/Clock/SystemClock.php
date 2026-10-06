@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MahmoudTR\Snowflake\Clock;
 
 use MahmoudTR\Snowflake\Contracts\Clock;

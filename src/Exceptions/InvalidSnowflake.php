@@ -6,5 +6,4 @@ namespace MahmoudTR\Snowflake\Exceptions;
 
 use InvalidArgumentException;
 
-final class InvalidSnowflake extends InvalidArgumentException
-{}
+final class InvalidSnowflake extends InvalidArgumentException {}
