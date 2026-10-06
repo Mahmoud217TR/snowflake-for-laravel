@@ -1,9 +1,16 @@
 {
     "name": "mahmoudtr/snowflake-for-laravel",
-    "description": "Package description: A configurable and extensible Snowflake ID generator for Laravel.",
+    "description": "Distributed, time-sortable 64-bit Snowflake IDs for Laravel with Redis coordination and Eloquent integration.",
     "keywords": [
-        "MahmoudTR",
         "laravel",
+        "snowflake",
+        "snowflake-id",
+        "distributed-id",
+        "id-generator",
+        "sortable-id",
+        "redis",
+        "eloquent",
+        "MahmoudTR",
         "snowflake-for-laravel"
     ],
     "homepage": "https://github.com/mahmoudtr/snowflake-for-laravel",
